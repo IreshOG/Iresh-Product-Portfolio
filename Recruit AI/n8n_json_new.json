@@ -1,0 +1,563 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "resume",
+        "options": {}
+      },
+      "id": "d8dbc119-c52c-433a-8b80-94dcd786c22d",
+      "name": "Extract Resume Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "options": {}
+      },
+      "id": "afaae373-4b88-4ed2-b029-ca5bce73026e",
+      "name": "Resume Analysis AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1536,
+        1328
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "panerivatsal@gmail.com",
+          "mode": "list",
+          "cachedResultName": "panerivatsal@gmail.com"
+        },
+        "start": "={{ $now.plus(1, 'days') }}",
+        "end": "={{ $now.plus(1, 'days').plus(1, 'hour') }}",
+        "additionalFields": {}
+      },
+      "id": "b89d0120-cb2b-4cb4-9ba8-6a6b6870033d",
+      "name": "Create Interview Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2576,
+        1584
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CoGK0umAeiRk3HaD",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "LMzuSeVA3g7NN7Aj",
+          "mode": "list",
+          "cachedResultName": "list o candidate",
+          "cachedResultUrl": "/projects/NVLDkWCadBOX5mX0/datatables/LMzuSeVA3g7NN7Aj"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "score": "={{ $json.score }}",
+            "Name": "={{ $json.name }}",
+            "status": "={{ $json.status }}",
+            "email": "={{ $json.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "cc98cc0a-a771-4dcc-95f6-c6b28ee329b5",
+      "name": "Store Analysis Results",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Update regarding your application",
+        "message": "=Hi {{ $json.name }},Thank you for your application. Unfortunately, we will not be moving forward at this time.",
+        "options": {}
+      },
+      "id": "d1f22bd8-791b-4b78-832c-805b904f79d7",
+      "name": "Send Rejection Email Draft",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        1168
+      ],
+      "webhookId": "9c61a176-5b51-48c2-8a4a-644b2bf2f717",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tzElzjj3mDz0ubTk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Parse Merged Output').item.json.email }}",
+        "subject": "Invitation to Interview",
+        "message": "=Hi  {{ $('Parse Merged Output').item.json.name }} , we would like to invite you...",
+        "options": {}
+      },
+      "id": "a7f6594c-16af-4443-8327-02ecaf3127ce",
+      "name": "Send Interview Email Draft",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2784,
+        1584
+      ],
+      "webhookId": "30069af9-c9ad-4f13-8b4e-e6b8a7464257",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tzElzjj3mDz0ubTk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        1520
+      ],
+      "id": "66edaf9f-5f77-4ac2-a2d4-1b00364a628b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZfAlmIYwxlFvDf4H",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        1280
+      ],
+      "id": "36a8e4f8-c622-4870-9759-9a5426bf3241",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZfAlmIYwxlFvDf4H",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1040,
+        1088
+      ],
+      "id": "969beaf5-e226-498b-8fa4-0b9d0b9ed069",
+      "name": "Candidate Info Extractor",
+      "alwaysOutputData": false,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"parameters\": {\n    \"mode\": \"raw\",\n    \"jsonOutput\": \"{\\n  \\\"resume_text\\\": \\\"={{ $json.data }}\\\",\\n  \\\"job_description\\\": \\\"={{ $json.jd }}\\\"\\n}\\n\",\n    \"options\": {}\n  },\n  \"type\": \"n8n-nodes-base.set\",\n  \"typeVersion\": 3.4,\n  \"position\": [\n    816,\n    1088\n  ],\n  \"id\": \"25f4ba3d-0b45-4d87-8538-b90055809611\",\n  \"name\": \"Edit Fields\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        1088
+      ],
+      "id": "25f4ba3d-0b45-4d87-8538-b90055809611",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nlet data = {};\ntry {\n  // 1. Get the string from the 'output' field\n  // 2. Strip away the markdown backticks (```json and ```)\n  // 3. Parse the remaining string into a real JSON object\n  const cleanString = input.output.replace(/```json|```/g, \"\").trim();\n  data = JSON.parse(cleanString);\n} catch (e) {\n  // Fallback if parsing fails\n  data = {};\n}\n\nconst clean = (val) => (val === \"N/A\" || !val) ? \"\" : val;\n\nreturn [\n  {\n    json: {\n      name: clean(data.name) || \"Unknown Candidate\",\n      email: clean(data.email),\n      city: clean(data.city),\n      phone: clean(data.phone)\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        1088
+      ],
+      "id": "c8b6d99a-8633-4537-aec5-4625e04b6134",
+      "name": "Normalize Candidate Info"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nlet aiData = {};\ntry {\n  if (item.output && typeof item.output === 'string') {\n    const cleanString = item.output.replace(/```json|```/g, \"\").trim();\n    aiData = JSON.parse(cleanString);\n  }\n} catch (e) {\n  aiData = {};\n}\n\n// 1. Force the score into a Number\nlet finalScore = Number(aiData.match_score || item.score || 0);\n\n// 2. Define scoring logic (Customizable for Recruit-AI)\nlet finalStatus = aiData.recommended_action || item.status || \"Needs Further Review\";\n\n// Rule: If score is 75 or above, ensure status is \"Interview\"\nif (finalScore >= 75) {\n  finalStatus = \"Interview\";\n} else if (finalScore < 40) {\n  finalStatus = \"Reject\";\n}\n\nreturn [\n  {\n    json: {\n      name: item.name || \"Unknown Candidate\",\n      email: item.email || \"\",\n      score: finalScore,\n      status: finalStatus\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        1104
+      ],
+      "id": "9a23a2e9-57e6-45a2-bb1c-8d78b621a500",
+      "name": "Parse Merged Output"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "Reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "63573397-dd3c-4483-b3a7-7b37358544fc"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Reject"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "89e2c6f8-58b1-49de-a727-adaf3a91cda5",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "Needs Further Review",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Needs Further Review"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "aae18b45-32be-4317-b91d-f0fb0ec33749",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "Interview",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Interview"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "54d5e8c0-b2c7-4c1e-a6d9-71aa14bb0fd2",
+      "name": "Route by Recommendation",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2336,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1840,
+        1104
+      ],
+      "id": "a5d91e7f-3149-4727-863b-7364567f44b9",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "245c6220-b06f-41b3-a5b3-7169761fcbb8",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        304,
+        1088
+      ],
+      "id": "cb9b7ad8-e04a-44e8-889c-0523477f3565",
+      "name": "Webhook",
+      "webhookId": "245c6220-b06f-41b3-a5b3-7169761fcbb8"
+    }
+  ],
+  "connections": {
+    "Extract Resume Text": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume Analysis AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Interview Event": {
+      "main": [
+        [
+          {
+            "node": "Send Interview Email Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Analysis Results": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Resume Analysis AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Candidate Info Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Info Extractor": {
+      "main": [
+        [
+          {
+            "node": "Normalize Candidate Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Candidate Info Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Candidate Info": {
+      "main": [
+        [
+          {
+            "node": "Resume Analysis AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Merged Output": {
+      "main": [
+        [
+          {
+            "node": "Store Analysis Results",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route by Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Recommendation": {
+      "main": [
+        [
+          {
+            "node": "Send Rejection Email Draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Create Interview Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Parse Merged Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Resume Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c92b9b8aaea9bfdbdf01bef243eb7fcc1aaaf9d0d56baf533b1523b59b16114"
+  }
+}
