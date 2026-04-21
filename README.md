@@ -13,6 +13,12 @@ As an AI Product Manager, I focus on bridging the gap between technical AI capab
 - **Technologies**: Includes integrations with models like Gemini 2.5 Flash Lite.
 - **Location**: [LLM-playground/](LLM-playground/)
 
+### Recruit AI
+- **Description**: A recruiter automation project that analyzes resumes, scores candidates, and automates interview and rejection workflows.
+- **Technologies**: n8n workflow automation, Google Gemini / PaLM, Gmail and Google Calendar integrations.
+- **Location**: [Recruit AI/](Recruit AI/)
+- **Readme**: [Recruit AI/README.md](Recruit AI/README.md)
+
 ## Skills & Interests
 
 - AI Strategy and Roadmap Planning
