@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>Job AI — Match with clarity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles-positive.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">✦</span><span>job<span class="brand-accent">ai</span></span></div>
+      <p class="sidebar-kicker">CAREER INTELLIGENCE</p>
+      <nav>
+        <button class="nav-item active"><span>◒</span> Match analysis</button>
+        <button class="nav-item" data-scroll="report"><span>⌁</span> Your report</button>
+        <button class="nav-item" data-scroll="writing"><span>✎</span> Writing studio</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="privacy-card"><span class="privacy-icon">◉</span><div><strong>Private by design</strong><p>Your documents stay in this browser.</p></div></div>
+        <div class="profile-chip"><div class="avatar">IR</div><div><strong>Iresh</strong><small>Product-minded builder</small></div><span class="more">···</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar"><div class="breadcrumb">WORKSPACE <span>/</span> NEW ANALYSIS</div><div class="topbar-actions"><span class="saved-status"><i></i> Auto-saved locally</span><button class="icon-button" id="clearAll" title="Clear workspace">⌫</button></div></header>
+      <section class="hero"><div><p class="eyebrow">A calmer way to apply</p><h1>Find the clearest <em>path to yes.</em></h1><p class="hero-copy">Add a role and your CV. Job AI turns the overlap into a calm, practical plan for your next application.</p><div class="trust-strip"><span>✦ Private by design</span><span>◌ Practical insights</span><span>↗ Ready-to-use writing</span></div></div><div class="hero-orbit"><span class="orbit-dot dot-one"></span><span class="orbit-dot dot-two"></span><span class="orbit-label">AI<br><small>career co-pilot</small></span></div></section>
+
+      <section class="input-intro"><p class="eyebrow">01 / START WITH TWO SIMPLE INPUTS</p><p>No perfect formatting needed — paste what you have and we’ll help you make sense of it.</p></section><section class="input-grid" aria-label="Job and CV inputs">
+        <article class="input-card" id="jobCard"><div class="card-heading"><div><span class="step">01</span><h2>Job description</h2></div><span class="input-ready" id="jobStatus">Optional file</span></div><p class="card-helper">Paste the role or upload a .txt / .pdf file.</p><div class="dropzone" data-target="jobFile"><input id="jobFile" type="file" accept=".txt,.pdf,text/plain,application/pdf" hidden><button class="upload-button" type="button"><span>↥</span> Upload file</button><span>or drop it here</span></div><textarea id="jobText" placeholder="Paste the job description here...\n\nTip: include responsibilities, requirements, and any skills the company mentions."></textarea><div class="text-meta"><span id="jobCount">0 characters</span><button class="sample-link" data-sample="job">Use sample role</button></div></article>
+        <article class="input-card" id="cvCard"><div class="card-heading"><div><span class="step">02</span><h2>Your CV</h2></div><span class="input-ready" id="cvStatus">Optional file</span></div><p class="card-helper">Give us the context behind your experience.</p><div class="dropzone" data-target="cvFile"><input id="cvFile" type="file" accept=".txt,.pdf,text/plain,application/pdf" hidden><button class="upload-button" type="button"><span>↥</span> Upload file</button><span>or drop it here</span></div><textarea id="cvText" placeholder="Paste your CV content here...\n\nTip: include your experience, projects, education, and skills."></textarea><div class="text-meta"><span id="cvCount">0 characters</span><button class="sample-link" data-sample="cv">Use sample CV</button></div></article>
+      </section>
+      <div class="analyze-row"><div class="privacy-note"><span>✦</span> Your documents are processed locally in your browser.</div><button class="primary-button" id="analyzeButton">Analyze match <span>→</span></button></div>
+
+      <section class="report-section" id="report"><div class="section-intro"><div><p class="eyebrow">03 / intelligence brief</p><h2>Your match report</h2></div><span class="report-hint">Add both documents to unlock your report</span></div><div id="emptyReport" class="empty-report"><div class="empty-visual"><span>✦</span><span>↗</span><span>⌁</span></div><h3>Your best next move is one analysis away.</h3><p>We’ll score the role fit, surface your strongest proof points, flag gaps, and draft the words to help you stand out.</p></div><div id="reportContent" class="report-content hidden"></div></section>
+      <section class="writing-section" id="writing"><div class="section-intro"><div><p class="eyebrow">04 / writing studio</p><h2>Make the first impression count</h2></div><span class="report-hint">Generated from your match report</span></div><div id="writingEmpty" class="writing-empty">Run an analysis to generate a tailored cover letter and cold email.</div><div id="writingContent" class="writing-grid hidden"></div></section>
+      <footer><span>JOB AI / v1.0</span><span>BUILT FOR BETTER APPLICATIONS <i>✦</i></span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
