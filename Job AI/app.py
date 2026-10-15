@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import re
+from datetime import date
+from io import BytesIO
 from typing import Dict, List
 
+import pandas as pd
 import streamlit as st
 
 try:
@@ -212,6 +215,39 @@ def pills(values: List[str], missing: bool = False) -> str:
     return "".join(f'<span class="{css.strip()}">{title_case(value)}</span>' for value in values) or '<span class="small-muted">No major keyword gaps found</span>'
 
 
+def dashboard_record(report: Dict, company: str, analysis_date: date, posting_date: date, status: str) -> Dict[str, str | int]:
+    missing = ", ".join(title_case(skill) for skill in report["missing"]) or "None identified"
+    matched = ", ".join(title_case(skill) for skill in report["matched"]) or "None identified"
+    report_details = (
+        f"{report['score']}/100 match. Skills to lead with: {matched}. "
+        f"Gaps to address: {missing}. Experience fit: {report['experience_score']}%; "
+        f"keyword signal: {report['keyword_score']}%."
+    )
+    return {
+        "Company name": company.strip() or "Not specified",
+        "Analysis date": analysis_date.isoformat(),
+        "Job posting date": posting_date.isoformat(),
+        "Application status": status,
+        "Required skills": ", ".join(title_case(skill) for skill in report["job_skills"]) or "Not detected",
+        "Analysis score": report["score"],
+        "Report details": report_details,
+    }
+
+
+def dashboard_excel(records: List[Dict[str, str | int]]) -> bytes:
+    frame = pd.DataFrame(records)
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        frame.to_excel(writer, index=False, sheet_name="Profile analyses")
+        worksheet = writer.sheets["Profile analyses"]
+        worksheet.freeze_panes = "A2"
+        for column_cells in worksheet.columns:
+            column_letter = column_cells[0].column_letter
+            max_length = max(len(str(cell.value or "")) for cell in column_cells)
+            worksheet.column_dimensions[column_letter].width = min(max(max_length + 2, 14), 48)
+    return output.getvalue()
+
+
 inject_styles()
 
 with st.sidebar:
@@ -255,6 +291,17 @@ with cv_col:
 
 st.session_state["job_text"] = job_text
 st.session_state["cv_text"] = cv_text
+st.markdown("## 02 / Application details")
+st.markdown("Add the role context so every profile analysis is easy to track in your dashboard.")
+details_col_1, details_col_2, details_col_3, details_col_4 = st.columns([1.35, 1, 1, 1.1])
+with details_col_1:
+    company_name = st.text_input("Company name", key="company_name", placeholder="e.g. AcmePay")
+with details_col_2:
+    analysis_date = st.date_input("Date of analysis", value=date.today(), key="analysis_date")
+with details_col_3:
+    posting_date = st.date_input("Date of job posting", value=date.today(), key="posting_date")
+with details_col_4:
+    application_status = st.selectbox("Application status", ["Not applied", "Applied", "Interviewing", "Offer", "Rejected", "Withdrawn"], key="application_status")
 st.markdown('<p class="small-muted">✦ Private, practical, and processed locally in this browser session.</p>', unsafe_allow_html=True)
 if st.button("Analyze match  →", type="primary"):
     if not job_text.strip() or not cv_text.strip():
@@ -268,6 +315,8 @@ if st.button("Analyze match  →", type="primary"):
     else:
         st.session_state["report"] = analyze(job_text, cv_text)
         st.session_state["writing"] = writing(st.session_state["report"])
+        records = st.session_state.setdefault("dashboard_records", [])
+        records.append(dashboard_record(st.session_state["report"], company_name, analysis_date, posting_date, application_status))
         st.success("Your report is ready.")
 
 st.markdown("## 03 / Your match report")
@@ -312,5 +361,30 @@ else:
             st.text_area(title, st.session_state["writing"][key], height=350, key=f"output_{key}", label_visibility="collapsed")
             st.download_button(f"Download {key}", st.session_state["writing"][key], file_name=f"job_ai_{key}.txt", key=f"download_{key}")
             st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("## 05 / Analysis dashboard")
+records = st.session_state.get("dashboard_records", [])
+if not records:
+    st.info("Run an analysis to start building your profile analysis dashboard.")
+else:
+    dashboard_frame = pd.DataFrame(records)
+    summary_cols = st.columns(4)
+    summary_values = [
+        ("TOTAL ANALYSES", len(dashboard_frame)),
+        ("AVERAGE SCORE", f"{dashboard_frame['Analysis score'].mean():.0f}/100"),
+        ("APPLIED", int((dashboard_frame["Application status"] == "Applied").sum())),
+        ("INTERVIEWING", int((dashboard_frame["Application status"] == "Interviewing").sum())),
+    ]
+    for col, (label, value) in zip(summary_cols, summary_values):
+        with col:
+            st.markdown(f'<div class="metric-card"><span class="metric-label">{label}</span><span class="metric-value">{value}</span></div>', unsafe_allow_html=True)
+    st.dataframe(dashboard_frame, use_container_width=True, hide_index=True)
+    st.download_button(
+        "Download dashboard as Excel",
+        data=dashboard_excel(records),
+        file_name="job_ai_analysis_dashboard.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        type="primary",
+    )
 
 st.markdown('<footer>JOB AI / PYTHON EDITION <span style="float:right">BUILT FOR BETTER APPLICATIONS ✦</span></footer>', unsafe_allow_html=True)
